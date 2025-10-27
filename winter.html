@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ru"> 
+    <head> 
+        <meta charset="utf-8"> 
+        <title>Snow World</title> 
+        <script src="https://cdn.jsdelivr.net/npm/aframe@1.7.0/dist/aframe.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
+        <!-- <script src="https://cdn.jsdelivr.net/npm/aframe-effects@1.0.0/dist/aframe-effects.min.js"></script> -->
+
+        <script src="js/notes-collector.js"></script>
+        <script src="js/portal-teleport.js"></script>
+        <script src="./js/RGBELoader.js"></script>
+        
+        <!-- Компонент для неровной поверхности --> 
+        <script> AFRAME.registerComponent('snowy-terrain', { schema: { size: { type: 'number', default: 360 },
+            detail: { type: 'number', default: 64 } },
+            init: function () { const geo = new THREE.PlaneGeometry(this.data.size, this.data.size, this.data.detail, this.data.detail);
+            const verts = geo.attributes.position;
+            for (let i = 0; i < verts.count; i++) { 
+                const x = verts.getX(i); 
+                const y = verts.getY(i); 
+                const z = verts.getZ(i);
+                const height = (Math.sin(x * 0.3) + Math.cos(y * 0.4)) * 0.8 + (Math.random() - 0.5) * 0.2; 
+                verts.setZ(i, z + height); } geo.computeVertexNormals(); 
+                const mat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9, metalness: 0.1 }); 
+                const mesh = new THREE.Mesh(geo, mat); mesh.rotation.x = -Math.PI / 2; this.el.setObject3D('mesh', mesh); } }); 
+        </script> 
+    </head> 
+    <body> 
+        <a-scene background="color: #DBEAF8" shadow="type: pcfsoft" inspector="" keyboard-shortcuts="" screenshot="" vr-mode-ui="" device-orientation-permission-ui="">
+        <!-- Освещение -->
+        <!-- <a-entity light="color: #fff" position="2 5 3" castshadow="true"></a-entity> -->
+        <!-- <a-entity light="color: #fff; intensity: 4" position="2 100 3" castshadow="true" id="castle-lightning" target="#castle"></a-entity> -->
+        <!-- <a-entity light="type: ambient; color: #ddeeff; intensity: 0.4"></a-entity> -->
+
+        <!-- Снежная поверхность -->
+        <a-entity id="GroundEntity" snowy-terrain="" position="0 -3 0"></a-entity>
+        
+        <!-- Замок: загружаем glTF и настраиваем тени / масштаб / позицию -->
+        <a-assets>
+            <a-asset-item id="castleModel" src="models/winterLevel/snow_meadow_ice_castle.glb"></a-asset-item>
+            <a-asset-item id="tree1-asset" src="models/trees/tree1.glb"></a-asset-item>
+            <a-asset-item id="tree2" src="models/trees/tree2.glb"></a-asset-item>
+            <a-asset-item id="tree3" src="models/trees/tree3.glb"></a-asset-item>
+            <a-asset-item id="tree4-asset" src="models/trees/tree4.glb"></a-asset-item>
+            <a-asset-item id="tree5" src="models/trees/tree5.glb"></a-asset-item>
+            <a-asset-item id="tree6" src="models/trees/tree6.glb"></a-asset-item>
+
+            <a-asset-item id="crystall-asset" src="models/winterLevel/crystall.glb"></a-asset-item>
+            <a-asset-item id="frozen-lake-asset" src="models/winterLevel/frozen_lake.glb"></a-asset-item>
+            <a-asset-item id="ice-texture-asset" src="models/winterLevel/ice_texture.glb"></a-asset-item>
+            <a-asset-item id="mountain-asset" src="models/winterLevel/low_poly_mountain.glb"></a-asset-item>
+            <a-asset-item id="mountain2-asset" src="models/winterLevel/low_poly_mountain2.glb"></a-asset-item>
+            <a-asset-item id="campfire-asset" src="models/winterLevel/lowpoly_campfire.glb"></a-asset-item>
+
+            <a-asset-item id="bench-asset" src="models/winterLevel/log_bench.glb"></a-asset-item>
+            <a-asset-item id="pillar-asset" src="models/winterLevel/stone_pillar.glb"></a-asset-item>
+            <a-asset-item id="grass-asset" src="models/winterLevel/low_poly_grass.glb"></a-asset-item>
+            <a-asset-item id="fire-asset" src="models/winterLevel/fire.glb"></a-asset-item>
+            <a-asset-item id="gates-asset" src="models/winterLevel/magic_gate.glb"></a-asset-item>
+            <a-asset-item id="note-asset" src="models/note.glb"></a-asset-item>
+
+            <!-- <img id="snowTexture" src="models/ice-texture.jpg"> -->
+
+        </a-assets>
+
+        <a-entity id="castle" gltf-model="#castleModel" shadow="" position="128.5235 -3.10514 138.85193" scale="4 4 4" rotation="0 -99.48995 0" static-body="shape: box; sphereRadius: NaN" velocity="">
+        </a-entity>
+
+        <a-entity id="tree-1" gltf-model="models/trees/tree1.glb" shadow="" position="57.68249 -1 62.52706" scale="2 2 2" rotation=""></a-entity>
+        <!-- <a-entity id="tree-2" gltf-model="#tree2" shadow="" position="20 -3 0" scale="0.01 0.01 0.01" rotation="0 0 0"></a-entity>
+        <a-entity id="tree-3" gltf-model="#tree3" shadow="" position="30 -3 0" scale="3 3 3" rotation="0 0 0"></a-entity> -->
+        <a-entity id="tree-4" gltf-model="models/trees/tree4.glb" shadow="" position="34.46589 -2 62.61599" scale="6 6 6" rotation=""></a-entity>
+        <!-- <a-entity id="tree-5" gltf-model="#tree5" shadow="" position="50 -3 0" scale="2 2 2" rotation="0 0 0"></a-entity> -->
+        <a-entity id="tree-6" gltf-model="models/trees/tree6.glb" shadow="" position="30 -3 0" scale="6 6 6" rotation=""></a-entity>
+
+        <a-entity id="crystall" collect-note gltf-model="#crystall-asset" shadow="" position="0 -1 69" scale="0.1 0.1 0.1" rotation=""
+            animation__rotate="property: rotation; to: 0 360 0; loop: true; dur: 14000; easing: linear"
+            animation__float="property: position; dir: alternate; dur: 2000; loop: true; to: 0 -0.5 69; easing:easeInOutSine">
+        </a-entity>
+
+        <!-- <a-entity id="frozen-lake" gltf-model="models/frozen_lake.glb" shadow="" position="0 0 40" scale="" rotation=""></a-entity> -->
+        <a-entity id="ice-texture" gltf-model="#ice-texture-asset" shadow="" position="-1.438 -1.5 67.98007" scale="3 3 3" rotation=""></a-entity>
+  
+
+
+        <a-entity geometry="primitive: torus; radius: 30; segmentsTubular: 360; radiusTubular: 1.02" material="roughness: 0.9; metalness: 0.1; repeat: 2 1" position="-0.73615 -3.27049 67.12836" rotation="90 0 0" shadow="">
+        </a-entity>
+
+        <!-- Полигоны для маскировки озера -->
+        <a-entity id="cover" scale="26.66 1 10" geometry="primitive: box; radius: 40; segmentsTubular: 360; radiusTubular: 1.02" material="roughness: 0.9; metalness: 0.1; repeat: 2 1" position="21.20173 -1.889 100.00071" rotation="0 0 0" shadow="">
+        </a-entity>
+        <a-entity id="cover2" scale="28.29 1 10" geometry="primitive: box; radius: 40; segmentsTubular: 360; radiusTubular: 1.02" material="roughness: 0.9; metalness: 0.1; repeat: 2 1" position="-24.04478 -1.889 100.05076" rotation="0 0 0" shadow="">
+        </a-entity>
+        <a-entity id="cover3" scale="27.27 1 10" geometry="primitive: box; radius: 40; segmentsTubular: 360; radiusTubular: 1.02" material="roughness: 0.9; metalness: 0.1; repeat: 2 1" position="-4.56196 -1.889 101.57867" rotation="0 0 0" shadow="">
+        </a-entity>
+        <a-entity id="cover4" scale="26 1 10" geometry="primitive: box; radius: 40; segmentsTubular: 360; radiusTubular: 1.02" material="roughness: 0.9; metalness: 0.1; repeat: 2 1" position="23.21607 -1.889 35.42349" rotation="0 0 0" shadow="">
+        </a-entity>
+        <a-entity id="cover5" scale="35 1 10" geometry="primitive: box; radius: 40; segmentsTubular: 360; radiusTubular: 1.02" material="roughness: 0.9; metalness: 0.1; repeat: 2 1" position="-1.75682 -1.889 33.03181" rotation="0 0 0" shadow="">
+        </a-entity>
+        <a-entity id="cover6" scale="25 1 10" geometry="primitive: box; radius: 40; segmentsTubular: 360; radiusTubular: 1.02" material="roughness: 0.9; metalness: 0.1; repeat: 2 1" position="-24.36391 -1.889 42.65167" rotation="0 45 0" shadow="">
+        </a-entity>
+        <a-entity id="cover7" scale="29.1 1 20" geometry="primitive: box; radius: 40; segmentsTubular: 360; radiusTubular: 1.02" material="roughness: 0.9; metalness: 0.1; repeat: 2 1" position="-31.56304 -1.889 91.90505" rotation="0 135 0" shadow="">
+        </a-entity>
+        <a-entity id="cover8" scale="40 1 10" geometry="primitive: box; radius: 40; segmentsTubular: 360; radiusTubular: 1.02" material="roughness: 0.9; metalness: 0.1; repeat: 2 1" position="-35.65279 -1.889 60.80871" rotation="0 90 0" shadow="">
+        </a-entity>
+        <a-entity id="cover9" scale="50 1 10" geometry="primitive: box; radius: 40; segmentsTubular: 360; radiusTubular: 1.02" material="roughness: 0.9; metalness: 0.1; repeat: 2 1" position="33.52944 -1.889 66.15352" rotation="0 90 0" shadow="">
+        </a-entity>
+        <a-entity id="cover10" scale="20 1 10" geometry="primitive: box; radius: 40; segmentsTubular: 360; radiusTubular: 1.02" material="roughness: 0.9; metalness: 0.1; repeat: 2 1" position="25.60924 -1.889 44.40755" rotation="0 135 0" shadow="">
+        </a-entity>
+        <a-entity id="cover11" scale="30 1 20" geometry="primitive: box; radius: 40; segmentsTubular: 360; radiusTubular: 1.02" material="roughness: 0.9; metalness: 0.1; repeat: 2 1" position="32.07778 -1.889 89.97853" rotation="0 45 0" shadow="">
+        </a-entity>
+        <a-entity id="cover12" scale="20 1 10" geometry="primitive: box; radius: 40; segmentsTubular: 360; radiusTubular: 1.02" material="roughness: 0.9; metalness: 0.1; repeat: 2 1" position="-27.821 -1.889 36.432" rotation="0 0 0" shadow="">
+        </a-entity>
+
+        <!-- Деревья -->
+        <a-entity id="tree-1" gltf-model="models/trees/tree1.glb" shadow="" position="15 -1 100" scale="2 2 2" rotation=""></a-entity>
+        <a-entity id="tree-4" gltf-model="models/trees/tree4.glb" shadow="" position="20 -2 100" scale="6 6 6" rotation=""></a-entity>
+        <a-entity id="tree-1-2" gltf-model="models/trees/tree1.glb" shadow="" position="-16.2677 -1 82.82685" scale="2 2 2" rotation=""></a-entity>
+        <a-entity id="tree-4-2" gltf-model="models/trees/tree4.glb" shadow="" position="-26.73583 -2 92.5526" scale="6 6 6" rotation=""></a-entity>
+        <a-entity id="tree-1-3" gltf-model="models/trees/tree1.glb" shadow="" position="-19.49173 -1 65.1601" scale="2 2 2" rotation=""></a-entity>
+        <a-entity id="tree-4-3" gltf-model="models/trees/tree4.glb" shadow="" position="-35.13781 -2 74.16873" scale="6 6 6" rotation=""></a-entity>
+        <a-entity id="tree-1-4" gltf-model="models/trees/tree1.glb" shadow="" position="33.46765 -1 37.74505" scale="2 2 2" rotation=""></a-entity>
+        <a-entity id="tree-4-4" gltf-model="models/trees/tree4.glb" shadow="" position="-33.04847 -2 54.65051" scale="6 6 6" rotation=""></a-entity>
+        <a-entity id="tree-1-5" gltf-model="models/trees/tree1.glb" shadow="" position="50.17647 -1 72.46317" scale="2 2 2" rotation=""></a-entity>
+        <a-entity id="tree-4-5" gltf-model="models/trees/tree4.glb" shadow="" position="-20.91559 -2 36.35911" scale="6 6 6" rotation=""></a-entity>
+        <a-entity id="tree-1-6" gltf-model="models/trees/tree1.glb" shadow="" position="-13.03609 -1 43.93721" scale="2 2 2" rotation=""></a-entity>
+        <a-entity id="tree-4-6" gltf-model="models/trees/tree4.glb" shadow="" position="10.82894 -2 34.66539" scale="6 6 6" rotation=""></a-entity>
+        <a-entity id="tree-1-7" gltf-model="models/trees/tree1.glb" shadow="" position="48.49093 -1 53.59043" scale="2 2 2" rotation=""></a-entity>
+        <a-entity id="tree-4-7" gltf-model="models/trees/tree4.glb" shadow="" position="26.84003 -2 43.99554" scale="6 6 6" rotation=""></a-entity>
+        <a-entity id="tree-1-8" gltf-model="models/trees/tree1.glb" shadow="" position="-2.58306 -1 97.82336" scale="2 2 2" rotation=""></a-entity>
+        <a-entity id="tree-4-8" gltf-model="models/trees/tree4.glb" shadow="" position="31.42345 -2 81.17326" scale="6 6 6" rotation=""></a-entity>
+        <a-entity id="tree-1-9" gltf-model="models/trees/tree1.glb" shadow="" position="58.61203 -1 50.04893" scale="2 2 2" rotation=""></a-entity>
+        <a-entity id="tree-4-9" gltf-model="models/trees/tree4.glb" shadow="" position="46.87918 -2 87.77297" scale="6 6 6" rotation=""></a-entity>
+        <a-entity id="tree-1-10" gltf-model="models/trees/tree1.glb" shadow="" position="-3.69059 -1 28.21753" scale="2 2 2" rotation=""></a-entity>
+        <a-entity id="tree-4-10" gltf-model="models/trees/tree4.glb" shadow="" position="-27.63861 -2 31.66528" scale="6 6 6" rotation=""></a-entity>
+        <a-entity id="tree-1-11" gltf-model="models/trees/tree1.glb" shadow="" position="-19.49173 -1 37.22073" scale="2 2 2" rotation=""></a-entity>
+        <a-entity id="tree-4-11" gltf-model="models/trees/tree4.glb" shadow="" position="-36.74701 -2 46.89498" scale="6 6 6" rotation=""></a-entity>
+        <a-entity id="tree-1-12" gltf-model="models/trees/tree1.glb" shadow="" position="28.28938 -1 28.57469" scale="2 2 2" rotation=""></a-entity>
+        <a-entity id="tree-4-12" gltf-model="models/trees/tree4.glb" shadow="" position="-35.97547 -2 91.25907" scale="6 6 6" rotation=""></a-entity>
+        <a-entity id="tree-1-13" gltf-model="models/trees/tree1.glb" shadow="" position="45.98216 -1 99.82454" scale="2 2 2" rotation=""></a-entity>
+        <a-entity id="tree-4-13" gltf-model="models/trees/tree4.glb" shadow="" position="-15.73217 -2 106.66057" scale="6 6 6" rotation=""></a-entity>
+        <a-entity id="tree-1-14" gltf-model="models/trees/tree1.glb" shadow="" position="-13.03609 -1 104.74713" scale="2 2 2" rotation=""></a-entity>
+        <a-entity id="tree-4-14" gltf-model="models/trees/tree4.glb" shadow="" position="14.54886 -2 108.42753" scale="6 6 6" rotation=""></a-entity>
+        <a-entity id="tree-1-15" gltf-model="models/trees/tree1.glb" shadow="" position="19.81459 -1 110.19357" scale="2 2 2" rotation=""></a-entity>
+        <a-entity id="tree-4-15" gltf-model="models/trees/tree4.glb" shadow="" position="-5.8139 -2 110.57245" scale="6 6 6" rotation=""></a-entity>
+        <a-entity id="tree-1-16" gltf-model="models/trees/tree1.glb" shadow="" position="40.22545 -1 91.5091" scale="2 2 2" rotation=""></a-entity>
+        <a-entity id="tree-4-16" gltf-model="models/trees/tree4.glb" shadow="" position="10.18282 -2 100.94209" scale="6 6 6" rotation=""></a-entity>
+
+        <a-entity id="tree-1-17" gltf-model="models/trees/tree1.glb" shadow="" position="62.1003 -1 77.41164" scale="2 2 2" rotation=""></a-entity>
+        <a-entity id="tree-4-17" gltf-model="models/trees/tree4.glb" shadow="" position="35.80816 -2 41.96042" scale="6 6 6" rotation=""></a-entity>
+        <a-entity id="tree-1-18" gltf-model="models/trees/tree1.glb" shadow="" position="3.96846 -1 33.56948" scale="2 2 2" rotation=""></a-entity>
+        <a-entity id="tree-4-18" gltf-model="models/trees/tree4.glb" shadow="" position="49.94173 -2 67.45185" scale="6 6 6" rotation=""></a-entity>
+        <a-entity id="tree-1-19" gltf-model="models/trees/tree1.glb" shadow="" position="40.20797 -1 30.30085" scale="2 2 2" rotation=""></a-entity>
+        <a-entity id="tree-4-19" gltf-model="models/trees/tree4.glb" shadow="" position="45.65804 -2 40.92459" scale="6 6 6" rotation=""></a-entity>
+        <a-entity id="tree-1-20" gltf-model="models/trees/tree1.glb" shadow="" position="54.57312 -1 33.97103" scale="2 2 2" rotation=""></a-entity>
+        <a-entity id="tree-4-20" gltf-model="models/trees/tree4.glb" shadow="" position="-11.30386 -2 25.43254" scale="6 6 6" rotation=""></a-entity>
+        <a-entity id="tree-1-21" gltf-model="models/trees/tree1.glb" shadow="" position="28.5541 -1 19.19446" scale="2 2 2" rotation=""></a-entity>
+        <a-entity id="tree-4-21" gltf-model="models/trees/tree4.glb" shadow="" position="11.32764 -2 8.72921" scale="6 6 6" rotation=""></a-entity>
+        <a-entity id="tree-1-22" gltf-model="models/trees/tree1.glb" shadow="" position="-3.59986 -1 15.03967" scale="2 2 2" rotation=""></a-entity>
+        <a-entity id="tree-4-22" gltf-model="models/trees/tree4.glb" shadow="" position="-11.81655 -2 6.74239" scale="6 6 6" rotation=""></a-entity>
+        <a-entity id="tree-1-23" gltf-model="models/trees/tree1.glb" shadow="" position="3.69523 -1 16.79529" scale="2 2 2" rotation=""></a-entity>
+        <a-entity id="tree-4-23" gltf-model="models/trees/tree4.glb" shadow="" position="20 -2 13.1627" scale="6 6 6" rotation=""></a-entity>
+        <a-entity id="tree-1-24" gltf-model="models/trees/tree1.glb" shadow="" position="32.99523 -1 3.44583" scale="2 2 2" rotation=""></a-entity>
+        <a-entity id="tree-4-24" gltf-model="models/trees/tree4.glb" shadow="" position="-19.10554 -2 3.74829" scale="6 6 6" rotation=""></a-entity>
+        <a-entity id="tree-1-25" gltf-model="models/trees/tree1.glb" shadow="" position="15 -1 101.96724" scale="2 2 2" rotation=""></a-entity>
+        <a-entity id="tree-4-25" gltf-model="models/trees/tree4.glb" shadow="" position="20 -2 100.30111" scale="6 6 6" rotation=""></a-entity>
+
+        <a-entity id="tree-1-26" gltf-model="#tree1-asset" shadow="" position="-41.61904 -3.22481 -174.92927" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-26" gltf-model="#tree4-asset" shadow="" position="-53.20243 -2.51978 -166.03029" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-27" gltf-model="#tree1-asset" shadow="" position="-30.52808 -3.22481 -176.0183" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-27" gltf-model="#tree4-asset" shadow="" position="-35.99098 -2.51978 -177.86164" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-28" gltf-model="#tree1-asset" shadow="" position="-20.61147 -3.22481 -168.14716" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-28" gltf-model="#tree4-asset" shadow="" position="-30.62875 -2.51978 -168.89472" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-29" gltf-model="#tree1-asset" shadow="" position="-1.39973 -3.22481 -171.48702" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-29" gltf-model="#tree4-asset" shadow="" position="-44.12403 -3.26398 -182.30219" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-30" gltf-model="#tree1-asset" shadow="" position="-7.7043 -3.22481 -180.07898" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-30" gltf-model="#tree4-asset" shadow="" position="-10.3109 -2.51978 -34.88744" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-31" gltf-model="#tree1-asset" shadow="" position="-6.05195 -3.22481 -6.33762" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-31" gltf-model="#tree4-asset" shadow="" position="-9.34343 -2.51978 -14.90294" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-32" gltf-model="#tree1-asset" shadow="" position="-7.86693 -3.22481 -42.89738" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-32" gltf-model="#tree4-asset" shadow="" position="16.39953 -2.51978 -9.04925" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-33" gltf-model="#tree1-asset" shadow="" position="-28.66218 -3.22481 -53.35538" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-33" gltf-model="#tree4-asset" shadow="" position="47.56929 -2.51978 -33.5665" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-34" gltf-model="#tree1-asset" shadow="" position="-43.11864 -3.22481 -66.83623" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-34" gltf-model="#tree4-asset" shadow="" position="-6.39387 -2.51978 -112.05533" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-35" gltf-model="#tree1-asset" shadow="" position="-68.6594 -3.22481 -76.81659" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-35" gltf-model="#tree4-asset" shadow="" position="12.74273 -2.51978 -77.42743" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-36" gltf-model="#tree1-asset" shadow="" position="-95.91478 -3.22481 -84.10617" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-36" gltf-model="#tree4-asset" shadow="" position="-100.6799 -2.51978 -86.93672" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-37" gltf-model="#tree1-asset" shadow="" position="-108.77456 -3.22481 -99.13167" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-37" gltf-model="#tree4-asset" shadow="" position="-79.16314 -2.51978 -84.30422" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-38" gltf-model="#tree1-asset" shadow="" position="-5.04769 -3.22481 -26.13722" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-38" gltf-model="#tree4-asset" shadow="" position="-74.42852 -2.51978 -67.97421" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-39" gltf-model="#tree1-asset" shadow="" position="16.80267 -3.22481 -24.49275" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-39" gltf-model="#tree4-asset" shadow="" position="-50.98249 -2.51978 -65.85743" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-40" gltf-model="#tree1-asset" shadow="" position="-85.63289 -3.22481 -121.48759" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-40" gltf-model="#tree4-asset" shadow="" position="-39.04389 -2.51978 -43.55921" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-41" gltf-model="#tree1-asset" shadow="" position="-30.0686 -3.22481 -122.1023" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-41" gltf-model="#tree4-asset" shadow="" position="-36.5001 -2.51978 -58.51219" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-42" gltf-model="#tree1-asset" shadow="" position="-107.60303 -3.22481 -139.49499" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-42" gltf-model="#tree4-asset" shadow="" position="-22.38151 -2.51978 -56.99016" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-43" gltf-model="#tree1-asset" shadow="" position="-121.43302 -3.22481 -140.29275" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-43" gltf-model="#tree4-asset" shadow="" position="1.08446 -2.51978 -86.93672" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-44" gltf-model="#tree1-asset" shadow="" position="-147.98824 -3.22481 -143.49663" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-44" gltf-model="#tree4-asset" shadow="" position="24.64218 -2.51978 -55.58506" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-45" gltf-model="#tree1-asset" shadow="" position="-56.30927 -2.93806 -109.42029" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-45" gltf-model="#tree4-asset" shadow="" position="31.0762 -2.51978 -38.22266" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-46" gltf-model="#tree1-asset" shadow="" position="-39.77067 -3.22481 -127.56244" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-47" gltf-model="#tree4-asset" shadow="" position="-63.11313 -2.51978 -115.82082" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-47" gltf-model="#tree1-asset" shadow="" position="10.05614 -3.22481 -126.04765" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-48" gltf-model="#tree4-asset" shadow="" position="-63.91731 -2.51978 -104.11078" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-48" gltf-model="#tree1-asset" shadow="" position="29.44585 -3.22481 -109.04607" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-49" gltf-model="#tree4-asset" shadow="" position="-53.65243 -2.51978 -111.34957" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-49" gltf-model="#tree1-asset" shadow="" position="14.99126 -3.22481 -96.50928" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-50" gltf-model="#tree4-asset" shadow="" position="56.33372 -2.51978 45.24232" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-50" gltf-model="#tree1-asset" shadow="" position="19.35757 -3.22481 -77.58127" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-51" gltf-model="#tree4-asset" shadow="" position="102.62876 -2.51978 23.25492" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-51" gltf-model="#tree1-asset" shadow="" position="59.49474 -3.22481 -65.18613" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-52" gltf-model="#tree4-asset" shadow="" position="92.32477 -2.51978 9.87757" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-52" gltf-model="#tree1-asset" shadow="" position="34.27488 -3.22481 -65.28547" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-53" gltf-model="#tree4-asset" shadow="" position="122.18655 -3.76364 37.02191" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-53" gltf-model="#tree1-asset" shadow="" position="59.61033 -3.22481 -47.89893" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-54" gltf-model="#tree4-asset" shadow="" position="138.42775 -2.51978 76.03544" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-54" gltf-model="#tree1-asset" shadow="" position="54.71305 -2.482 10.27952" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-55" gltf-model="#tree4-asset" shadow="" position="122.10275 -2.51978 56.62717" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-55" gltf-model="#tree1-asset" shadow="" position="73.16165 -3.22481 24.67505" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-56" gltf-model="#tree4-asset" shadow="" position="109.4315 -2.51978 41.20572" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-56" gltf-model="#tree1-asset" shadow="" position="83.69202 -3.22481 34.73201" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-57" gltf-model="#tree4-asset" shadow="" position="125.65698 -2.51978 69.16688" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-57" gltf-model="#tree1-asset" shadow="" position="88.67247 -3.22481 48.36263" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-58" gltf-model="#tree4-asset" shadow="" position="62.14624 -2.51978 59.72286" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-58" gltf-model="#tree1-asset" shadow="" position="95.40276 -3.22481 64.16612" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-59" gltf-model="#tree4-asset" shadow="" position="69.54837 -2.51978 83.21027" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-59" gltf-model="#tree1-asset" shadow="" position="106.22633 -3.22481 80.39774" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-60" gltf-model="#tree4-asset" shadow="" position="84.61407 -2.51978 113.99819" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-60" gltf-model="#tree1-asset" shadow="" position="114.41108 -3.22481 93.05359" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-61" gltf-model="#tree4-asset" shadow="" position="62.71922 -2.51978 101.05206" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-61" gltf-model="#tree1-asset" shadow="" position="119.62316 -3.22481 114.43334" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-62" gltf-model="#tree4-asset" shadow="" position="80.33621 -2.51978 98.68055" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-62" gltf-model="#tree1-asset" shadow="" position="82.9612 -3.22481 -25.24486" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-63" gltf-model="#tree4-asset" shadow="" position="64.03626 -2.51978 71.38143" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-63" gltf-model="#tree1-asset" shadow="" position="124.6102 -3.22481 10.98579" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-64" gltf-model="#tree4-asset" shadow="" position="46.26175 -2.51978 117.03575" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-64" gltf-model="#tree1-asset" shadow="" position="136.83196 -3.22481 26.10383" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-65" gltf-model="#tree4-asset" shadow="" position="68.82723 -2.51978 124.20088" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-65" gltf-model="#tree1-asset" shadow="" position="148.96291 -3.22481 45.79298" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-66" gltf-model="#tree4-asset" shadow="" position="-134.22983 -2.51978 -72.23352" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-66" gltf-model="#tree1-asset" shadow="" position="154.98264 -3.22481 61.41954" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-67" gltf-model="#tree4-asset" shadow="" position="-109.33956 -2.51978 -73.35066" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-67" gltf-model="#tree1-asset" shadow="" position="4.43436 -3.22481 -46.83095" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-68" gltf-model="#tree4-asset" shadow="" position="-97.31592 -2.51978 -68.46262" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-68" gltf-model="#tree1-asset" shadow="" position="-130.78847 -3.22481 -74.63964" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-69" gltf-model="#tree4-asset" shadow="" position="-106.0847 -2.51978 -56.18478" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-69" gltf-model="#tree1-asset" shadow="" position="-102.78253 -3.22481 -63.89584" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-70" gltf-model="#tree4-asset" shadow="" position="-71.09028 -2.51978 -56.43948" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-70" gltf-model="#tree1-asset" shadow="" position="-68.73191 -3.22481 -57.91082" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-71" gltf-model="#tree4-asset" shadow="" position="-48.40344 -2.51978 -35.51146" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-71" gltf-model="#tree1-asset" shadow="" position="-63.9837 -3.22481 -46.66198" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-72" gltf-model="#tree4-asset" shadow="" position="-119.94966 -2.51978 -47.96297" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-72" gltf-model="#tree1-asset" shadow="" position="-53.63801 -3.22481 -24.90016" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-73" gltf-model="#tree4-asset" shadow="" position="-93.87988 -2.51978 -38.89836" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-73" gltf-model="#tree1-asset" shadow="" position="-47.96555 -3.22481 -16.24697" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-74" gltf-model="#tree4-asset" shadow="" position="-75.3175 -2.51978 -37.236" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-74" gltf-model="#tree1-asset" shadow="" position="-19.04861 -3.22481 7.92362" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-75" gltf-model="#tree4-asset" shadow="" position="-112.78269 -2.51978 -24.7699" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-75" gltf-model="#tree1-asset" shadow="" position="-48.10986 -3.22481 8.26275" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-76" gltf-model="#tree4-asset" shadow="" position="-93.70624 -2.51978 -23.55253" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-76" gltf-model="#tree1-asset" shadow="" position="-25.30057 -3.22481 -22.37758" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-77" gltf-model="#tree4-asset" shadow="" position="-85.72551 -2.51978 -10.92975" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-77" gltf-model="#tree1-asset" shadow="" position="-42.49919 -3.22481 -42.03886" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-78" gltf-model="#tree4-asset" shadow="" position="-58.86831 -2.51978 -26.05929" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-78" gltf-model="#tree1-asset" shadow="" position="-90.17236 -3.22481 -41.58803" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-79" gltf-model="#tree4-asset" shadow="" position="-61.4384 -2.51978 -2.7503" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-79" gltf-model="#tree1-asset" shadow="" position="-83.91569 -3.22481 -11.80383" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-80" gltf-model="#tree4-asset" shadow="" position="-42.50388 -2.51978 -6.88898" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-80" gltf-model="#tree1-asset" shadow="" position="-70.86248 -3.22481 5.02456" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-81" gltf-model="#tree4-asset" shadow="" position="-110.22485 -2.51978 7.64114" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-81" gltf-model="#tree1-asset" shadow="" position="-48.72493 -3.22481 37.89404" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-82" gltf-model="#tree4-asset" shadow="" position="-87.50749 -2.51978 40.05309" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-82" gltf-model="#tree1-asset" shadow="" position="-31.30271 -3.22481 24.06085" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-83" gltf-model="#tree4-asset" shadow="" position="-54.57749 -2.51978 57.43451" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-83" gltf-model="#tree1-asset" shadow="" position="-76.69922 -3.22481 23.10445" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-84" gltf-model="#tree4-asset" shadow="" position="-153.0577 -2.51978 -97.03905" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-84" gltf-model="#tree1-asset" shadow="" position="-110.33802 -3.22481 0.01796" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-85" gltf-model="#tree4-asset" shadow="" position="-147.82298 -2.51978 -156.56784" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-85" gltf-model="#tree1-asset" shadow="" position="-107.72832 -3.22481 -30.98596" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-86" gltf-model="#tree4-asset" shadow="" position="-130.55107 -2.51978 -157.29762" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-86" gltf-model="#tree1-asset" shadow="" position="-87.97546 -3.22481 44.44532" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-87" gltf-model="#tree4-asset" shadow="" position="-155.08543 -2.51978 -143.35657" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-87" gltf-model="#tree1-asset" shadow="" position="-61.00831 -3.22481 60.52008" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-88" gltf-model="#tree4-asset" shadow="" position="-165.39392 -2.51978 -101.66681" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-88" gltf-model="#tree1-asset" shadow="" position="-155.74067 -3.22481 -132.76038" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-89" gltf-model="#tree4-asset" shadow="" position="-176.3999 -2.51978 -117.72047" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-89" gltf-model="#tree1-asset" shadow="" position="-154.77859 -3.22481 -90.65587" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-90" gltf-model="#tree4-asset" shadow="" position="-175.4002 -2.51978 -156.25991" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-90" gltf-model="#tree1-asset" shadow="" position="-148.16984 -3.22481 -75.94724" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-91" gltf-model="#tree4-asset" shadow="" position="-159.81746 -2.51978 -164.72862" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-91" gltf-model="#tree1-asset" shadow="" position="-155.2672 -3.22481 -105.96599" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-92" gltf-model="#tree4-asset" shadow="" position="-119.96092 -2.51978 -130.29426" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-92" gltf-model="#tree1-asset" shadow="" position="-109.16674 -3.22481 -84.04061" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-93" gltf-model="#tree4-asset" shadow="" position="27.73339 -2.51978 18.36522" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-93" gltf-model="#tree1-asset" shadow="" position="-143.25988 -3.22481 -152.64708" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-94" gltf-model="#tree4-asset" shadow="" position="-140.84754 -2.51978 -87.37809" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-94" gltf-model="#tree1-asset" shadow="" position="-117.04027 -3.22481 -171.42678" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-95" gltf-model="#tree4-asset" shadow="" position="-140.84754 -2.51978 -87.37809" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-95" gltf-model="#tree1-asset" shadow="" position="61.19044 -3.22481 19.97835" scale="2.5 2.5 2.5" rotation=""></a-entity>
+        <a-entity id="tree-4-96" gltf-model="#tree4-asset" shadow="" position="-140.84754 -2.51978 -87.37809" scale="8 8 8" rotation=""></a-entity>
+        <a-entity id="tree-1-96" gltf-model="#tree1-asset" shadow="" position="-142.58698 -3.22481 -87.2756" scale="2.5 2.5 2.5" rotation=""></a-entity>
+
+        <!-- Горы -->
+        <a-entity id="mountain-1" gltf-model="#mountain-asset" shadow="" position="-78.00183 -2.67764 201.34392" scale="0.5 0.5 0.5" rotation="0 180 0"></a-entity>
+        <a-entity id="mountain-2" gltf-model="#mountain-asset" shadow="" position="-136.90583 -17.66628 150.72674" scale="0.5 0.5 0.5" rotation=""></a-entity>
+        <a-entity id="mountain-3" gltf-model="#mountain-asset" shadow="" position="86.91045 -42.42202 204.17115" scale="0.5 0.5 0.5" rotation="0 90 0"></a-entity>
+        <a-entity id="mountain-4" gltf-model="#mountain-asset" shadow="" position="-37.26703 -2 296.14762" scale="0.5 0.5 0.5" rotation="0 90 0"></a-entity>
+        <a-entity id="mountain-5" gltf-model="#mountain-asset" shadow="" position="-176.08687 -46.42178 84.34313" scale="0.5 0.5 0.5" rotation=""></a-entity>
+        <a-entity id="mountain-6" gltf-model="#mountain-asset" shadow="" position="-164.17618 -66.13736 34.84379" scale="0.5 0.5 0.5" rotation="0 90 0"></a-entity>
+        <a-entity id="mountain-7" gltf-model="#mountain-asset" shadow="" position="-182.84972 -80.00128 -20.12455" scale="0.5 0.5 0.5" rotation="0 120 0"></a-entity>
+        <a-entity id="mountain-8" gltf-model="#mountain-asset" shadow="" position="-152.10144 -94.44924 -47.79525" scale="0.5 0.5 0.5" rotation=""></a-entity>
+        <a-entity id="mountain-9" gltf-model="#mountain-asset" shadow="" position="12.46988 -60.89746 -149.2784" scale="0.5 0.5 0.5" rotation=""></a-entity>
+        <a-entity id="mountain-10" gltf-model="#mountain-asset" shadow="" position="20 -2 215.94966" scale="0.5 0.5 0.5" rotation=""></a-entity>
+        <a-entity id="mountain-11" gltf-model="#mountain-asset" shadow="" position="42.23836 -66.02547 -92.87795" scale="0.5 0.5 0.5" rotation="0 45 0"></a-entity>
+        <a-entity id="mountain-12" gltf-model="#mountain-asset" shadow="" position="74.90871 -76.28738 -40.79035" scale="0.5 0.5 0.5" rotation=""></a-entity>
+        <a-entity id="mountain-13" gltf-model="#mountain-asset" shadow="" position="113.97676 -83.67069 -8.97608" scale="0.5 0.5 0.5" rotation="0 180 0"></a-entity>
+        <a-entity id="mountain-14" gltf-model="#mountain-asset" shadow="" position="156.5382 -60.89746 24.69635" scale="0.5 0.5 0.5" rotation=""></a-entity>
+        <a-entity id="mountain-15" gltf-model="#mountain-asset" shadow="" position="171.90549 -63.24431 90.00309" scale="0.5 0.5 0.5" rotation="0 45 0"></a-entity>
+        <a-entity id="mountain-16" gltf-model="#mountain-asset" shadow="" position="-88.74338 -60.89746 -144.86637" scale="0.5 0.5 0.5" rotation=""></a-entity>
+        <a-entity id="mountain-17" gltf-model="#mountain-asset" shadow="" position="-88.74338 -60.89746 -144.86637" scale="0.5 0.5 0.5" rotation=""></a-entity>
+
+        <!-- Остальное -->
+        <a-entity id="campfire-1" gltf-model="#campfire-asset" shadow="" position="-37.51746 -2 -146.73831" scale="0.03 0.03 0.03" rotation=""></a-entity>
+        <a-entity id="campfire-fire-1" gltf-model="#fire-asset" shadow="" position="-48.55424 -0.65621 -153.52283" scale="4 4 4" rotation=""></a-entity>
+        <a-entity id="bench-1" gltf-model="#bench-asset" shadow="" position="-35.01617 -3.10716 -133.71506" scale="0.04 0.04 0.04" rotation="0 90 0"></a-entity>
+        <a-entity id="bench-2" gltf-model="#bench-asset" shadow="" position="-51.28927 -3.34514 -133.5937" scale="0.04 0.04 0.03" rotation="0 90 0"></a-entity>
+        <a-entity id="bench-3" gltf-model="#bench-asset" shadow="" position="-50.37092 -2.47423 -160.95332" scale="0.04 0.04 0.03" rotation=""></a-entity>
+        <a-entity id="pillar-1" gltf-model="#pillar-asset" shadow="" position="-161.3705 -3.4413 -109.11699" scale="2 2 2" rotation=""></a-entity>
+        <a-entity id="pillar-2" gltf-model="#pillar-asset" shadow="" position="-142.93289 -2.95242 -126.91063" scale="2 2 2" rotation=""></a-entity>
+        <a-entity id="pillar-3" gltf-model="#pillar-asset" shadow="" position="-142.982 -2.95283 -109.61443" scale="2 2 2" rotation=""></a-entity>
+        <a-entity id="pillar-4" gltf-model="#pillar-asset" shadow="" position="-161.3705 -3.43496 -126.91063" scale="2 2 2" rotation=""></a-entity>
+        <!-- <a-entity id="grass-1" gltf-model="#grass-asset" shadow="" position="-161.3705 -2.20323 -119.07595" scale="0.003 0.003 0.005" rotation=""></a-entity> -->
+        <a-entity id="portal" portal-trigger gltf-model="#gates-asset" shadow="" position="133.83865 -2.20323 140.20902" scale="0.01 0.01 0.01" rotation="0 90 0" visible="false"></a-entity>
+
+        <!-- Записка у костра -->
+        <a-entity id="note-1" collect-note gltf-model="#note-asset" class="note" shadow="" position="-45.71837 -1.70003 -142.43059" scale="5 5 5" rotation="28.737844130376697 26.71988677592594 3.6136448138901023"></a-entity>
+        <!-- Записка у портала  -->
+        <a-entity id="note-2" collect-note gltf-model="#note-asset" shadow="note" position="115.9577 -1.92645 124.12843" scale="5 5 5" rotation="86.08977350738185 24.33065277023041 179.9998479605043"></a-entity>
+
+        <!-- Камера и управление -->
+        <a-entity id="player" rotation="0 -87 0" position="-98.14772 1.6 -104.21939" jumpable="" dynamic-body="sphereRadius: NaN" velocity="">
+            <a-camera wasd-controls="acceleration: 100" look-controls="pointerLockEnabled: true" camera="" position="-14.667078685006707 1.6 50.28760083684023" rotation="-12.834254610930442 -24.522593631599495 0" data-aframe-inspector-original-camera="">
+            <a-cursor rayorigin="mouse" material="" raycaster="" cursor="" geometry=""></a-cursor>
+            </a-camera>
+        </a-entity>
+
+        <!-- Прыжки -->
+        <script>
+            AFRAME.registerComponent('jumpable', {
+            schema: {
+                jumpStrength: { type: 'number', default: 0.2 },
+                gravity: { type: 'number', default: -0.01 }
+            },
+            init: function () {
+                this.velocityY = 0;
+                this.isJumping = false;
+                window.addEventListener('keydown', (e) => {
+                if (e.code === 'Space' && !this.isJumping) {
+                    this.velocityY = this.data.jumpStrength;
+                    this.isJumping = true;
+                }
+                });
+            },
+            tick: function () {
+                const pos = this.el.object3D.position;
+                this.velocityY += this.data.gravity;
+                pos.y += this.velocityY;
+                if (pos.y <= 1.6) { // немного выше, чем в комнате
+                pos.y = 1.6;
+                this.velocityY = 0;
+                this.isJumping = false;
+                }
+            }
+            });
+        </script>
+        <script>
+            document.getElementById("campfire-fire-1").setAttribute("animation-mixer", "clip");
+            document.getElementById("portal").setAttribute("animation-mixer", "clip");
+        </script>
+
+        <!-- Падение снежинок -->
+        <a-entity particle-system="preset: snow; particleCount: 8000; size: 0.1; opacity: 0.9; velocityValue: 0 -0.3 0; color: #ffffff" position="0 5 0">
+        </a-entity>
+
+        <script>
+            
+        </script>
+
+        <div class="a-loader-title" style="display: none;">Snow World</div><div class="a-loader-title" style="display: none;">Snow World</div><div class="a-loader-title" style="display: none;">Snow World</div></a-scene>
+    </body>
+</html>

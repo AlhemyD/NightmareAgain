@@ -1,0 +1,218 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Forest</title>
+	<script src="https://cdn.jsdelivr.net/npm/aframe@1.7.0/dist/aframe.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.2.3/dist/aframe-physics-system.js"></script>
+	<script src="RGBELoader.js"></script>
+    
+  </head>
+  <body>
+    <a-scene background="color: #ECECEC">
+	<!-- Заготовки для моделей -->
+      <a-assets>
+        <a-asset-item id="crystalStoneRockModel" src="models/third/crystal_stone_rock.glb"></a-asset-item>
+		<a-asset-item id="portalModel" src="models/portal.glb"></a-asset-item>
+		<a-asset-item id="noteModel" src="models/note.glb"></a-asset-item>
+		<a-asset-item id="slendermanModel" src="models/third/slenderman.glb"></a-asset-item>
+		<a-asset-item id="cyberpunkRockModel" position="-5.61611 0 0.93249" src="models/third/cyberpunk_rock.glb"></a-asset-item>
+		<a-asset-item id="glowingRockModel" src="models/third/glowing_rock.glb"></a-asset-item>
+		<a-asset-item id="glowingRockModel1" src="models/third/glowing_rock_1.glb"></a-asset-item>
+		<!-- <a-asset-item id="heavyRockDevilModel" src="models/third/heavy_rock_devil.glb"></a-asset-item> -->
+		<a-asset-item id="petRockModel" src="models/third/pet_rock.glb"></a-asset-item>
+		<a-asset-item id="picnicTableModel" src="models/third/picnic_table_low_poly.glb"></a-asset-item>
+		<a-asset-item id="rockTowerModel" src="models/third/rock_tower.glb"></a-asset-item>
+		<a-asset-item id="stylizedGlowingRockModel" src="models/third/stylized_glowing_rock.glb"></a-asset-item>
+		<a-asset-item id="stylizedRockModel" src="models/third/stylized_rock.glb"></a-asset-item>
+		<a-asset-item id="trailerParkModel" src="models/third/trailer_park.glb"></a-asset-item>
+      </a-assets>
+	  
+       <!-- Игрок -->	   
+      <a-entity position = "10 0 10" camera wasd-controls id="player" jumpable look-controls="pointerLockEnabled: true;">
+			<a-cursor rayOrigin="mouse"></a-cursor> 
+      </a-entity>
+	
+      <!-- Освещение -->
+	  <!-- <a-light type="hemisphere" color="#fff" ground-color="#aaa" intensity="1"></a-light> -->
+      <!-- <a-light type="directional" position="-1 1 0" cast-shadow="true" shadow-map-size="1024"></a-light> -->
+
+      <!-- Заставка-->
+      <a-plane gltf-model="#trailerParkModel" rotation="0 0 0" width="100" height="100"></a-plane>
+
+
+	<!-- окружение -->
+      <a-entity id="crystalStoneRock" scale="3.3771 3.3771 3.3771" position="-23.549 1 49.30711" rotation="0 0 0" gltf-model="#crystalStoneRockModel" ></a-entity>
+	  <a-entity id="slenderman" position="-26.79459 2.5 -32.4838" scale="0.01 0.01 0.01" gltf-model="#slendermanModel" ></a-entity>
+	  <a-entity id="cyberpunkRock" scale="0.5 0.5 0.5" position="-29.55844 0 50.22751" gltf-model="#cyberpunkRockModel" ></a-entity>
+	  <a-entity id="glowingRock" position="-26.56917 0 50.44854" scale="0.1 0.1 0.1" gltf-model="#glowingRockModel" ></a-entity>
+	  <a-entity id="glowingRock1" scale="0.7 0.7 0.7" position="42.87289 0.7 1.967" gltf-model="#glowingRockModel1" ></a-entity>
+	  <!-- <a-entity id="heavyRockDevil" position="-13.2343 0 -7.31609" gltf-model="#heavyRockDevilModel" ></a-entity> -->
+	  <a-entity  collect-note id="petRock" position="-2.30446 1.1 1.92579" gltf-model="#petRockModel" ></a-entity>
+	  <a-entity id="picnicTable" scale="0.1 0.1 0.1" rotation="180 0 0" position="14.89454 -1 5.79329" gltf-model="#picnicTableModel" ></a-entity>
+	  <a-entity id="rockTower" position="-10.35129 0 43.77892" gltf-model="#rockTowerModel" ></a-entity>
+	  <a-entity collect-note  id="stylizedGlowingRock" position="1.173 0.5 1.72708" gltf-model="#stylizedGlowingRockModel" ></a-entity>
+	  <a-entity id="stylizedRock" position="47.73358 -0.68706 20.99377" gltf-model="#stylizedRockModel" ></a-entity>
+	  
+
+      <!-- Записки (предметы) для собирания -->
+      <a-entity collect-note id="note1" rotation="180 0 0" gltf-model="#noteModel" position="-26.54141 0.82653 50.50779" ></a-entity>
+	  <a-entity  collect-note  id="note2" rotation="54.5685004082596 80.76012009707492 -24.01151527834254" gltf-model="#noteModel" position="-28.57739 0.32649 49.24917" ></a-entity>
+	  <a-entity  collect-note id="note3" rotation="83.4438544094677 96.07184421415106 -86.79336567980249" gltf-model="#noteModel" position="-23.72247 1.41832 48.20611" ></a-entity>
+	  <a-entity  collect-note id="note4" rotation="0 0 180" gltf-model="#noteModel" position="16.04159 0.92428 9.02313" ></a-entity>
+
+      <!-- Портал к новой локации (изначально закрыт, виден после сбора записок) -->
+      <a-entity  static-body id="portal" position="10 -0.45 10" 
+        scale = "0.5 0.5 0.5" gltf-model="#portalModel" visible="false"></a-entity>
+
+    
+      <script>
+	  
+        // Проверка, когда игрок подбирает все записки и открывается портал
+        // Можно добавить событие на портал
+        document.querySelector('#portal').addEventListener('click', () => {
+          const portal = document.querySelector('#portal');
+          if (portal.getAttribute('visible') === true) {
+            // Переход на другую страницу
+            window.location.href = 'index.html';
+			//alert("Вы перешли на другую локацию");
+          }
+        });
+      </script>
+	  <script>
+		document.getElementById("portal").setAttribute("animation-mixer", "clip");
+		document.getElementById("slenderman").setAttribute("animation-mixer","clip");
+		document.getElementById("crystalStoneRock").setAttribute("animation-mixer","clip");
+		document.getElementById("cyberpunkRock").setAttribute("animation-mixer","clip");
+		document.getElementById("glowingRock").setAttribute("animation-mixer","clip");
+		document.getElementById("glowingRock1").setAttribute("animation-mixer","clip");
+		document.getElementById("petRock").setAttribute("animation-mixer","clip");
+		document.getElementById("stylizedRock").setAttribute("animation-mixer","clip");
+		document.getElementById("stylizedGlowingRock").setAttribute("animation-mixer","clip: motion");
+		
+	  </script>
+    </a-scene>
+    <script>
+
+      let noteCollected = 0;
+
+      // Компонент для загадки: собирание записок
+      AFRAME.registerComponent('collect-note', {
+        schema: {
+          count: { type: 'int', default: 0 },
+          goal: { type: 'int', default: 6 } // сколько записок нужно
+        },
+
+        init: function () {
+          const el = this.el;
+          const sceneEl = el.sceneEl;
+		  
+		  // Создание мерцающего полупрозрачного куба
+            const glowBox = document.createElement('a-box');
+            glowBox.setAttribute('material', {
+              color: '#FFFFFF', // Белый полупрозрачный цвет
+              opacity: 0.5,     // Начальная прозрачность
+              transparent: true // Включаем режим прозрачности
+            });
+            glowBox.setAttribute('animation', {
+              property: 'material.opacity', // Анимация свойства "opactity"
+              from: 0.5,                    // Начинаем с непрозрачности 0.5
+              to: 0.1,                      // Заканчиваем на полной прозрачности
+              dir: 'alternate',             // Альтернативное направление (туда-обратно)
+              dur: 1000,                     // Длительность одной фазы цикла в миллисекундах
+              loop: true                     // Повторяем бесконечно
+            });
+			// Определяем масштаб объекта относительно текста (размеры задаются исходя из размеров исходной модели)
+            const modelScale = el.getAttribute('scale');
+            glowBox.setAttribute('scale', `${modelScale.x+0.1} ${modelScale.y+0.1} ${modelScale.z+0.1}`); // Немного увеличиваем размер для наглядности
+
+            // Размещаем куб поверх модели
+            glowBox.setAttribute('position', '0 0.5 0'); // чуть смещаем вверх
+
+            // Добавляем куб к сцене
+            el.appendChild(glowBox);
+
+          // камеру ищем, когда сцена загрузится полностью
+          const findCamera = () => {
+            this.cameraEl = sceneEl.querySelector('[camera]');
+            if (this.cameraEl) {
+              console.log('Камера найдена:', this.cameraEl);
+            } else {
+              console.warn('Камера пока не найдена, пробую снова...');
+              setTimeout(findCamera, 500);
+            }
+          };
+          findCamera();
+
+          this.el.addEventListener('click', () => {
+            if (!this.cameraEl) {
+              console.log('Камера ещё не готова, попробуйте снова через секунду.');
+              return;
+            }
+            // получаем позиции записки и камеры
+            const notePos = new THREE.Vector3();
+            const camPos = new THREE.Vector3();
+            this.el.object3D.getWorldPosition(notePos);
+            this.cameraEl.object3D.getWorldPosition(camPos);
+
+            // считаем расстояние (только по плоскости XZ)
+            const dx = notePos.x - camPos.x;
+            const dz = notePos.z - camPos.z;
+            const distance = Math.sqrt(dx * dx + dz * dz);
+
+            if (distance <= 2 && distance > 0) {
+
+              this.data.count++;
+              noteCollected++;
+              // Можно обновлять интерфейс
+              //alert('Записка собрана: ' + this.data.count);
+              // Удаляем записку из сцены
+
+
+              if (noteCollected >= this.data.goal) {
+                document.querySelector('#portal').setAttribute('visible', 'true');
+                //document.querySelector('#portalTrigger').setAttribute('visible', 'true');
+                //alert('Вы собрали все записки! Портал открылся!');
+              }
+              this.el.parentNode.removeChild(this.el);
+            } else {
+              console.log("Note too far");
+              return;
+            }
+          });
+        }
+      });
+
+      <!-- Компонент: прыжок -->
+      AFRAME.registerComponent('jumpable', {
+        schema: {
+          jumpStrength: { type: 'number', default: 0.2 },
+          gravity: { type: 'number', default: -0.01 }
+        },
+        init: function () {
+          this.velocityY = 0;
+          this.isJumping = false;
+          window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && !this.isJumping) {
+              this.velocityY = this.data.jumpStrength;
+              this.isJumping = true;
+            }
+          });
+        },
+        tick: function () {
+          const pos = this.el.object3D.position;
+          this.velocityY += this.data.gravity;
+          pos.y += this.velocityY;
+
+          if (pos.y <= 1.8) {
+            pos.y = 1.8;
+            this.velocityY = 0;
+            this.isJumping = false;
+          }
+        }
+      });
+    </script>
+  
+	
+  </body>
+</html>

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Quest Room</title>
+    <script src="https://cdn.jsdelivr.net/npm/aframe@1.7.0/dist/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
+    <script src="js/portal-teleport-home.js"></script>
+    <script src="js/notes-collector.js"></script>
+</head>
+
+<body>
+    <a-scene background="color: #B0EDFF">
+
+        <a-sky src="models/homeLevel/panorama.jpg" rotation="0 -90 0"></a-sky>
+
+        <a-entity id="piano-sound" position="-4.08374 1.28663 -3.60335" sound="src: url(models/homeLevel/piano.mp3); autoplay: false;"></a-entity>
+
+        <a-assets>
+            <a-asset-item id="room-asset" src="models/homeLevel/room_blank.glb"></a-asset-item>
+            <a-asset-item id="note-asset" src="models/note.glb"></a-asset-item>
+            <a-asset-item id="gates-asset" src="models/winterLevel/magic_gate.glb"></a-asset-item>
+            <!-- <img id="snowTexture" src="models/ice-texture.jpg"> -->
+
+        </a-assets>
+
+        <!-- Пол -->
+        <!-- <a-plane position="0 0 0" rotation="-90 0 0" width="10" height="10" color="#7BC8A4"></a-plane> -->
+
+        <!-- Комната -->
+        <a-entity id="room" gltf-model="#room-asset" shadow="" position="0 0 0" scale="1.2 1.2 1.2" rotation=""></a-entity>
+
+        <!-- Записка 1 -->
+        <a-entity id="note-1" collect-note gltf-model="#note-asset" class="note" shadow="" position="0 1.4639 2.00475" scale="2 2 2" rotation="90 180 0"></a-entity>
+        <!-- Записка 2 -->
+        <a-entity id="note-2" collect-note gltf-model="#note-asset" shadow="note" position="3.9974 1.56401 -3.61393" scale="2 2 2" rotation="90 270 0"></a-entity>
+        
+        <!-- Дверь -->
+        <a-entity id="doorPivot" door-behavior="isOpen: false" position="2.24809 0 5.08422" rotation="0 0 0" door-behavior>
+            <a-entity id="doorModel" gltf-model="url(models/door_2.glb)" scale="1.11981 1.0522 1" position="0.75915 0 0.06243">
+            </a-entity>
+        </a-entity>
+
+        <!-- Пианино -->
+        <a-entity id="piano" collect-note gltf-model="url(models/piano_1.glb)" position="-4 0 -3.60841" scale="0.007 0.007 0.007"
+            rotation="0 0 0">
+        </a-entity>
+
+        <a-box id="box" position="-4.05 0.5 -3.51969" width="1.5" height="3.15" depth="3.0" color="#FFFFFF" opacity="0"
+            animation="property: material.opacity; from: 0; to: 0.5; dir: alternate; loop: true; dur: 2000">
+        </a-box>
+
+        <!-- Стол -->
+        <a-entity id="table" gltf-model="url(models/table_1.glb)" position="-4.17317 0 -0.04032" scale="1.4 1.4 1.4"
+            rotation="0 90 0">
+        </a-entity>
+
+        <!-- Ключ -->
+        <a-entity id="key" gltf-model="url(models/key_1.glb)" class="interactable" position="-4.19846 1.22 0.11063"
+            scale="0.01 0.01 0.01" rotation="0 45 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 10000"
+            key-behavior>
+        </a-entity>
+
+        <!-- Портал -->
+        <a-entity id="portal" portal-trigger gltf-model="#gates-asset" shadow="" position="2.88307 0 6.26115" scale="0.003 0.003 0.003" rotation="0 90 0" visible="false"></a-entity>
+
+        <!-- Игрок -->
+        <a-entity id="player" rotation="0 -87 0" position="0 0.01 0" jumpable>
+            <a-camera wasd-controls="acceleration: 25" look-controls="pointerLockEnabled: true">
+                <!-- Курсор, который позволяет "наводиться" мышью -->
+                <a-cursor rayOrigin="mouse"></a-cursor>
+            </a-camera>
+        </a-entity>
+
+        <!-- <a-entity id="portal" geometry="primitive: circle; radius: 1"
+          material="color: #88f; opacity: 0.7"
+          position="0 1.5 -3"
+          class="clickable"></a-entity>
+
+      <script>
+        const portal = document.querySelector('#portal');
+        portal.addEventListener('click', () => {
+          window.location.href = 'snow.html';
+        });
+      </script> -->
+
+        <!-- Компонент: прыжок -->
+        <script>
+            AFRAME.registerComponent('jumpable', {
+                schema: {
+                    jumpStrength: { type: 'number', default: 0.2 },
+                    gravity: { type: 'number', default: -0.01 }
+                },
+                init: function () {
+                    this.velocityY = 0;
+                    this.isJumping = false;
+                    window.addEventListener('keydown', (e) => {
+                        if (e.code === 'Space' && !this.isJumping) {
+                            this.velocityY = this.data.jumpStrength;
+                            this.isJumping = true;
+                        }
+                    });
+                },
+                tick: function () {
+                    const pos = this.el.object3D.position;
+                    this.velocityY += this.data.gravity;
+                    pos.y += this.velocityY;
+
+                    if (pos.y <= 0) {
+                        pos.y = 0;
+                        this.velocityY = 0;
+                        this.isJumping = false;
+                    }
+                }
+            });
+        </script>
+
+        <!-- Глобальная переменная -->
+        <script>
+            let hasKey = false; // Игрок подобрал ключ или нет
+        </script>
+
+        <!-- Компонент: ключ -->
+        <script>
+            AFRAME.registerComponent('key-behavior', {
+                init: function () {
+                    const el = this.el;
+
+                    // Подсветка при наведении
+                    el.addEventListener('mouseenter', () => {
+                        if (!hasKey) el.setAttribute('color', '#FFF000');
+                    });
+
+                    // Возврат цвета
+                    el.addEventListener('mouseleave', () => {
+                        if (!hasKey) el.setAttribute('color', '#FFD700');
+                    });
+
+                    // Подобрать ключ
+                    el.addEventListener('click', () => {
+                        if (!hasKey) {
+                            hasKey = true;
+                            el.setAttribute('animation__pickup', {
+                                property: 'position',
+                                to: '-4.2 3 0.1',
+                                dur: 500,
+                                easing: 'easeOutQuad'
+                            });
+                            el.setAttribute('animation__fade', {
+                                property: 'scale',
+                                to: '0 0 0',
+                                dur: 800,
+                                easing: 'easeInQuad'
+                            });
+                            setTimeout(() => el.setAttribute('visible', 'false'), 900);
+                            console.log('Ключ подобран!');
+                        }
+                    });
+                }
+            });
+        </script>
+
+        <script>
+            AFRAME.registerComponent('door-behavior', {
+                schema: {
+                    isOpen: { type: 'boolean', default: false }
+                },
+                init: function () {
+                    const el = this.el;
+                    const sceneEl = el.sceneEl;
+
+                    // камеру ищем, когда сцена загрузится полностью
+                    const findCamera = () => {
+                        this.cameraEl = sceneEl.querySelector('[camera]');
+                        if (this.cameraEl) {
+                            console.log('Камера найдена:', this.cameraEl);
+                        } else {
+                            console.warn('Камера пока не найдена, пробую снова...');
+                            setTimeout(findCamera, 500);
+                        }
+                    };
+                    findCamera();
+
+                    // обработчики событий
+                    this.onKeyDown = (e) => {
+                        if (e.code === 'KeyE') this.tryOpenDoor();
+                    };
+                    window.addEventListener('keydown', this.onKeyDown);
+
+                    // клик по двери
+                    el.addEventListener('click', () => this.tryOpenDoor());
+                },
+
+                remove: function () {
+                    window.removeEventListener('keydown', this.onKeyDown);
+                },
+
+                tryOpenDoor: function () {
+                    if (this.data.isOpen) return;
+                    if (!this.cameraEl) {
+                        console.log('Камера ещё не готова, попробуйте снова через секунду.');
+                        return;
+                    }
+
+                    // получаем позиции двери и камеры
+                    const doorPos = new THREE.Vector3();
+                    const camPos = new THREE.Vector3();
+                    this.el.object3D.getWorldPosition(doorPos);
+                    this.cameraEl.object3D.getWorldPosition(camPos);
+
+                    // считаем расстояние (только по плоскости XZ)
+                    const dx = doorPos.x - camPos.x;
+                    const dz = doorPos.z - camPos.z;
+                    const distance = Math.sqrt(dx * dx + dz * dz);
+
+                    if (distance > 2) {
+                        console.log(`Слишком далеко (${distance.toFixed(2)} м). Подойдите ближе к двери.`);
+                        return;
+                    }
+
+                    // открытие
+                    if (hasKey) {
+                        this.el.setAttribute('animation__open', {
+                            property: 'rotation',
+                            to: '0 90 0',
+                            dur: 1000,
+                            easing: 'easeOutQuad'
+                        });
+                        this.data.isOpen = true;
+                        console.log('✅ Дверь открыта!');
+                    } else {
+                        console.log('🚪 Дверь заперта. Нужен ключ.');
+                        this.el.setAttribute('animation__shake', {
+                            property: 'rotation',
+                            to: '0 5 0',
+                            dir: 'alternate',
+                            dur: 150,
+                            loop: 2
+                        });
+                    }
+                }
+            });
+        </script>
+
+    </a-scene>
+</body>
+
+</html>
